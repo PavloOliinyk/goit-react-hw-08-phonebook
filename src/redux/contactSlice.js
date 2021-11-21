@@ -1,33 +1,52 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 
-export const contactsApi = createApi({
+export const contactApi = createApi({
   reducerPath: 'contactApi',
   baseQuery: fetchBaseQuery({
-    baseUrl: 'https://6190e15341928b001768feb7.mockapi.io',
+    baseUrl: 'https://connections-api.herokuapp.com/',
+    prepareHeaders: (headers, { getState }) => {
+      const token = getState().token;
+      if (token) {
+        headers.set('authorization', `Bearer ${token}`);
+      }
+      return headers;
+    },
   }),
-  tagTypes: ['Contact'],
+  tagTypes: ['contact'],
+  keepUnusedDataFor: 30,
   endpoints: builder => ({
     fetchContacts: builder.query({
-      query: () => '/contacts',
-      providesTags: ['Contact'],
+      query: () => 'contacts',
+      providesTags: ['contact'],
     }),
     deleteContact: builder.mutation({
-      query: contactId => ({
-        url: `/contacts/${contactId}`,
-        method: 'DELETE',
-      }),
-      invalidatesTags: ['Contact'],
+      query(id) {
+        return {
+          url: `contacts/${id}`,
+          method: 'DELETE',
+        };
+      },
+      invalidatesTags: ['contact'],
     }),
-    createContact: builder.mutation({
-      query: ({ name, number }) => ({
-        url: '/contacts',
-        method: 'POST',
-        body: {
-          name,
-          phone: number,
-        },
-      }),
-      invalidatesTags: ['Contact'],
+    addContact: builder.mutation({
+      query(body) {
+        return {
+          url: 'contacts',
+          method: 'POST',
+          body,
+        };
+      },
+      invalidatesTags: ['contact'],
+    }),
+    updateContact: builder.mutation({
+      query({ event, id }) {
+        return {
+          url: `contacts/${id}`,
+          method: 'PATCH',
+          body: event,
+        };
+      },
+      invalidatesTags: ['contact'],
     }),
   }),
 });
@@ -35,5 +54,6 @@ export const contactsApi = createApi({
 export const {
   useFetchContactsQuery,
   useDeleteContactMutation,
-  useCreateContactMutation,
-} = contactsApi;
+  useAddContactMutation,
+  useUpdateContactMutation,
+} = contactApi;

@@ -2,14 +2,14 @@ import PropTypes from 'prop-types';
 import s from './Contact.module.css';
 import { useDeleteContactMutation } from '../../../redux/contactSlice';
 
-function Contact({ contact: { name, phone, id } }) {
+function Contact({ contact: { name, number, id } }) {
   const [deleteContact] = useDeleteContactMutation();
 
   return (
     <li className={s.card}>
       <div className={s.cardContent}>
         <p className={s.cardInfo}>{name}</p>
-        <p className={s.cardInfo}>{phone}</p>
+        <p className={s.cardInfo}>{number}</p>
         <button className={s.cardButton} onClick={() => deleteContact(id)}>
           Delete contact
         </button>
